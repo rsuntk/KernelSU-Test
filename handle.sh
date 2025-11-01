@@ -5,6 +5,7 @@ KERNEL_VERSION="$2"
 KERNELSU_REPO="$3"
 KERNELSU_BRANCH="$4"
 ACK="https://android.googlesource.com/kernel/common"
+SECONDS=0
 
 fetch_kernel() {
 	git clone --depth=1 $ACK -b $1 $2
@@ -44,16 +45,23 @@ elif [ "$COMPILER" == "gcc" ]; then
 fi
 
 KDIR="kernel_$KERNEL_VERSION"
+CONFIG="defconfig_$KERNEL_VERSION"
+
 if [ "$KERNEL_VERSION" == "54" ]; then
 	fetch_kernel android12-5.4-lts $KDIR
+	DEFCONFIG="gki_defconfig"
 elif [ "$KERNEL_VERSION" == "419" ]; then
 	fetch_kernel deprecated/android-4.19-stable $KDIR
+	DEFCONFIG="gki_defconfig"
 elif [ "$KERNEL_VERSION" == "414" ]; then
 	fetch_kernel deprecated/android-4.14-stable $KDIR
+	DEFCONFIG="defconfig"
 elif [ "$KERNEL_VERSION" == "49" ]; then
 	fetch_kernel deprecated/android-4.9-q $KDIR
+	DEFCONFIG="defconfig"
 elif [ "$KERNEL_VERSION" == "44" ]; then
 	fetch_kernel deprecated/android-4.4-p $KDIR
+	DEFCONFIG="defconfig"
 fi
 
 echo -e "\n\n DIR: $(pwd)\n\n"
@@ -70,7 +78,14 @@ if [ "$KERNEL_VERSION" == "419" ] || [ "$KERNEL_VERSION" == "54" ]; then
 fi
 fi
 
+# Override prebuilt defconfig with ours.
+cp $CONFIG $KDIR/arch/arm64/configs/defconfig
+
 cd $KDIR && setup_kernelsu $KERNELSU_REPO $KERNELSU_BRANCH
 
-make defconfig -j$(nproc --all)
+make $DEFCONFIG -j$(nproc --all)
 make -j$(nproc --all)
+
+echo "========================================="
+echo "Total build time: $SECONDS"
+echo "========================================="
