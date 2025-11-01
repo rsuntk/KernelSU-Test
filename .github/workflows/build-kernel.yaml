@@ -1,0 +1,31 @@
+name: Test build for Non-GKI kernels
+on:
+  workflow_dispatch:
+    inputs:
+      ksu:
+        description: 'KernelSU Repository URL'
+        required: true
+        default: "https://github.com/rsuntk/KernelSU"
+      ksu_branch:
+        description: 'KernelSU Branch to Compile'
+        required: true
+        default: "main"
+jobs:
+  build-kernel:
+    strategy:
+      matrix:
+        include:
+          - kversion: 419
+            compiler: llvm
+          - kversion: 414
+            compiler: llvm
+          - kversion: 49
+            compiler: gcc
+          - kversion: 44
+            compiler: gcc
+    uses: ./.github/workflows/handle.yaml
+    with:
+      kversion: ${{ matrix.kversion }}
+      compiler: ${{ matrix.compiler }}
+      ksu: ${{ inputs.ksu }}
+      ksu_branch: ${{ inputs,ksu_branch }}

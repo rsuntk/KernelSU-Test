@@ -1,0 +1,41 @@
+name: Build non-GKI kernels
+
+on:
+  workflow_call:
+    inputs:
+      kversion:
+        description: 'Kernel versions'
+        required: true
+        type: string
+      compiler:
+        description: 'Compiler'
+        required: true
+        type: string
+      ksu:
+        description: 'KernelSU Repository'
+        required: true
+        type: string
+      ksu_branch:
+        description: 'KernelSU Branch'
+        required: true
+        type: string
+
+jobs:
+  build-kernel-core:
+    name: Build kernelsu.ko for ${{ inputs.kmi }}
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout source code
+      uses: actions/checkout@v4
+
+    - name: Install required dependencies
+      run: |
+        sudo apt update -y
+        sudo apt install bc bison flex cpio lz4 rsync gcc make aptitude libssl -y
+        sudo aptitude install libssl-dev -y
+
+    - name: Build kernelsu.ko
+      run: |
+        echo $(pwd)
+        bash handle.sh "${{ inputs.compiler }}" "${{ inputs.kversion }}" "${{ inputs.ksu }}" "${{ inputs.ksu_branch }}"
