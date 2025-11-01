@@ -13,6 +13,9 @@ fetch_kernel() {
 setup_kernelsu() {
 	GKI_ROOT=$(pwd)
 	DRIVER_DIR="$GKI_ROOT/drivers"
+	DRIVER_MAKEFILE="$DRIVER_DIR/Makefile"
+	DRIVER_KCONFIG="$DRIVER_DIR/Kconfig"
+
 	echo "[+] Setting up KernelSU..."
 	test -d "$GKI_ROOT/KernelSU" || git clone $1 KernelSU && echo "[+] Repository cloned."
 	cd "$GKI_ROOT/KernelSU"
@@ -24,6 +27,7 @@ setup_kernelsu() {
 	grep -q "kernelsu" "$DRIVER_MAKEFILE" || printf "\nobj-\$(CONFIG_KSU) += kernelsu/\n" >> "$DRIVER_MAKEFILE" && echo "[+] Modified Makefile."
 	grep -q "source \"drivers/kernelsu/Kconfig\"" "$DRIVER_KCONFIG" || sed -i "/endmenu/i\source \"drivers/kernelsu/Kconfig\"" "$DRIVER_KCONFIG" && echo "[+] Modified Kconfig."
 	echo '[+] Done.'
+	cd ..
 }
 
 [ -z $COMPILER ] && exit 1;
