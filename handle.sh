@@ -49,7 +49,7 @@ CONFIG="defconfig_$KERNEL_VERSION"
 
 if [ "$KERNEL_VERSION" == "54" ]; then
 	fetch_kernel android12-5.4-lts $KDIR
-	DEFCONFIG="gki_defconfig"
+	DEFCONFIG="defconfig"
 elif [ "$KERNEL_VERSION" == "419" ]; then
 	fetch_kernel deprecated/android-4.19-stable $KDIR
 	DEFCONFIG="gki_defconfig"
@@ -79,13 +79,26 @@ fi
 fi
 
 # Override prebuilt defconfig with ours.
-cp $CONFIG $KDIR/arch/arm64/configs/defconfig
+OLD_CONFIG="$(base64 $KDIR/arch/arm64/configs/defconfig)"
+cp $(pwd)/$CONFIG $KDIR/arch/arm64/configs/defconfig
+NEW_CONFIG="$(base64 $KDIR/arch/arm64/configs/defconfig)"
+
+if [ "$OLD_CONFIG" != "$NEW_CONFIG" ]; then
+	echo "INFO: Defconfig has been replaced."
+fi
 
 cd $KDIR && setup_kernelsu $KERNELSU_REPO $KERNELSU_BRANCH
 
-make $DEFCONFIG -j$(nproc --all)
-make -j$(nproc --all)
+make CONFIG_SECTION_MISMATCH_WARN_ONLY=y $DEFCONFIG -j$(nproc --all)
+make CONFIG_SECTION_MISMATCH_WARN_ONLY=y -j$(nproc --all)
 
 echo "========================================="
 echo "Total build time: $SECONDS"
+echo "========================================="
+
+cd ..
+
+[ ! -e $KDIR/arch/arm64/boot/Image ] && exit 1
+echo "========================================="
+echo "Build test success."
 echo "========================================="
