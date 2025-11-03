@@ -49,19 +49,14 @@ CONFIG="defconfig_$KERNEL_VERSION"
 
 if [ "$KERNEL_VERSION" == "54" ]; then
 	fetch_kernel android12-5.4-lts $KDIR
-	DEFCONFIG="defconfig"
 elif [ "$KERNEL_VERSION" == "419" ]; then
 	fetch_kernel deprecated/android-4.19-stable $KDIR
-	DEFCONFIG="gki_defconfig"
 elif [ "$KERNEL_VERSION" == "414" ]; then
 	fetch_kernel deprecated/android-4.14-stable $KDIR
-	DEFCONFIG="defconfig"
 elif [ "$KERNEL_VERSION" == "49" ]; then
 	fetch_kernel deprecated/android-4.9-q $KDIR
-	DEFCONFIG="defconfig"
 elif [ "$KERNEL_VERSION" == "44" ]; then
 	fetch_kernel deprecated/android-4.4-p $KDIR
-	DEFCONFIG="defconfig"
 fi
 
 echo -e "\nCurrent Directory: $(pwd)\n"
@@ -87,7 +82,7 @@ NEW_CONFIG="$(base64 $KDIR/arch/arm64/configs/defconfig)"
 
 cd $KDIR && setup_kernelsu $KERNELSU_REPO $KERNELSU_BRANCH
 
-make CONFIG_SECTION_MISMATCH_WARN_ONLY=y $DEFCONFIG -j$(nproc --all)
+make CONFIG_SECTION_MISMATCH_WARN_ONLY=y defconfig -j$(nproc --all)
 make CONFIG_SECTION_MISMATCH_WARN_ONLY=y -j$(nproc --all)
 
 echo "========================================="
