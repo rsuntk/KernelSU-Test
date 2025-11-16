@@ -65,6 +65,7 @@ export ARCH=arm64
 export CROSS_COMPILE=$(pwd)/gcc-6.4/bin/aarch64-linux-gnu-
 export CLANG_TRIPLE=$CROSS_COMPILE
 export PATH=$(pwd)/clang-11/bin:$PATH
+export KSU_DRY_RUN=1
 
 if [ "$COMPILER" == "llvm" ]; then
 if [ "$KERNEL_VERSION" == "419" ] || [ "$KERNEL_VERSION" == "54" ]; then
